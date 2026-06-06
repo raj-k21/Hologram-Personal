@@ -1,0 +1,6 @@
+{
+  "name": "Hologram Projection Studio",
+  "description": "A responsive fullscreen Pepper's Ghost / hologram projector utility designed for iPad with real-time mirroring, neon clock, live stock visualization, and GPU-accelerated 3D WebGL graphics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
