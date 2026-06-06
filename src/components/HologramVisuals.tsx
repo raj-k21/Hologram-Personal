@@ -863,13 +863,13 @@ export default function HologramVisuals({
         ref={canvasRef}
         className="absolute inset-0 w-full h-full block z-0"
         style={{
-          filter: `drop-shadow(0 0 ${glow}px var(--hologram-glow))`
+          filter: document.documentElement.classList.contains('harmonyos-optimized') ? 'none' : `drop-shadow(0 0 ${glow}px var(--hologram-glow))`
         }}
       />
 
       {/* Futuristic Floating Dashboard Menu */}
-      <div className={`absolute inset-x-6 top-6 z-10 flex flex-col items-center justify-center gap-3 pointer-events-none md:flex-row md:justify-between w-[90%] md:w-[95%] left-[5%] transition-all duration-500 ${isIdle ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        <div className="flex flex-col sm:flex-row items-center gap-2 pointer-events-auto">
+      <div className={`absolute inset-x-6 top-6 z-10 flex flex-row items-center justify-between pointer-events-none w-[90%] md:w-[95%] left-[5%] transition-all duration-500 ${isIdle ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        <div className="flex flex-row items-center gap-2 pointer-events-auto">
           <div className="bg-black/60 border border-white/10 px-4 py-2.5 rounded-xl backdrop-blur-md flex items-center gap-3">
             <MonitorPlay className={`w-5 h-5 ${
               colorPreset === 'cyan' ? 'text-cyan-400' :
@@ -904,13 +904,13 @@ export default function HologramVisuals({
           </div>
         </div>
 
-        <div className="hidden md:block text-right bg-black/40 border border-white/5 px-3 py-1.5 rounded-lg text-[9px] font-mono text-white/30 tracking-wider">
+        <div className="block text-right bg-black/40 border border-white/5 px-3 py-1.5 rounded-lg text-[9px] font-mono text-white/30 tracking-wider">
           {activeCatalogItem.desc}
         </div>
       </div>
 
       {/* Visual Controls Hub floating above the canvas bottom */}
-      <div className={`z-10 bg-black/60 border border-white/10 px-6 py-4 rounded-t-3xl md:rounded-full md:mb-6 md:mx-auto max-w-xl w-full backdrop-blur-md flex flex-col gap-3 transition-opacity duration-500 ${isIdle ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      <div className={`z-10 bg-black/60 border border-white/10 px-6 py-4 rounded-full mb-6 mx-auto max-w-xl w-full backdrop-blur-md flex flex-col gap-3 transition-opacity duration-500 ${isIdle ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         <div className="flex items-center justify-between gap-6">
           
           {/* Deck selector */}

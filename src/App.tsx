@@ -67,6 +67,15 @@ export default function App() {
     };
   }, [currentMode]);
 
+  // HarmonyOS optimization detection and global class binding
+  useEffect(() => {
+    const ua = navigator.userAgent || '';
+    const isHarmony = /HarmonyOS/i.test(ua) || /Huawei/i.test(ua) || /MatePad/i.test(ua) || /HUAWEI/i.test(ua);
+    if (isHarmony) {
+      document.documentElement.classList.add('harmonyos-optimized');
+    }
+  }, []);
+
   // Keep screen active by disabling standard iPad OS sleep locks if supported
   useEffect(() => {
     try {
@@ -195,7 +204,7 @@ export default function App() {
           <div className="w-[1px] h-4 bg-white/10" />
 
           {/* Warning notice about reflecting screen */}
-          <div className="hidden md:flex items-center gap-1 text-[9px] font-mono text-white/30">
+          <div className="flex items-center gap-1 text-[9px] font-mono text-white/30">
             <Zap className="w-3 h-3 text-amber-500 animate-pulse" />
             <span>ALIGN MIRROR FACING THE GLASS PYRAMID SETUP</span>
           </div>

@@ -91,3 +91,43 @@ html, body, #root {
 .animate-blink {
   animation: blink 1s step-end infinite;
 }
+
+/* HarmonyOS Performance Optimization overrides */
+.harmonyos-optimized .backdrop-blur-xl,
+.harmonyos-optimized .backdrop-blur-md,
+.harmonyos-optimized .backdrop-blur-sm,
+.harmonyos-optimized .backdrop-blur {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background-color: rgba(10, 10, 10, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.harmonyos-optimized .shadow-\[0_0_15px_rgba\(255\,255\,255\,0\.01\)\] {
+  box-shadow: none !important;
+}
+
+.harmonyos-optimized .shadow-\[0_0_25px_rgba\(255\,255\,255\,0\.05\)\] {
+  box-shadow: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+}
+
+/* Simplify pulsing active glows */
+.harmonyos-optimized .animate-\[pulse_3s_infinite\] {
+  animation: none !important;
+}
+
+.harmonyos-optimized .hover\:shadow-\[0_0_20px_rgba\(239\,68\,68\,0\.15\)\]:hover {
+  box-shadow: none !important;
+  border-color: rgba(239, 68, 68, 0.8) !important;
+}
+
+.harmonyos-optimized .hover\:shadow-\[0_0_20px_rgba\(34\,211\,238\,0\.15\)\]:hover {
+  box-shadow: none !important;
+  border-color: rgba(34, 211, 238, 0.8) !important;
+}
+
+.harmonyos-optimized .hover\:shadow-\[0_0_20px_rgba\(168\,85\,247\,0\.15\)\]:hover {
+  box-shadow: none !important;
+  border-color: rgba(168, 85, 247, 0.8) !important;
+}

@@ -161,7 +161,7 @@ export default function HologramClock({ glow, isIdle = false }: HologramClockPro
       ctx.scale(focalScale, focalScale);
 
       // Glow setting
-      ctx.shadowBlur = glow;
+      ctx.shadowBlur = document.documentElement.classList.contains('harmonyos-optimized') ? 0 : glow;
       ctx.shadowColor = 'rgba(239, 68, 68, 0.9)';
 
       ctx.fillStyle = '#ef4444';
@@ -229,7 +229,7 @@ export default function HologramClock({ glow, isIdle = false }: HologramClockPro
             {/* The Huge LED Clock Display */}
             <div 
               className="text-[clamp(2.5rem,11.5vw,9.5rem)] sm:text-[clamp(4.5rem,14vw,11rem)] md:text-[clamp(6rem,14vw,11.5rem)] lg:text-[11.5rem] leading-none font-mono font-black text-red-600 tracking-tighter select-none flex items-baseline justify-center"
-              style={{ filter: `drop-shadow(0 0 ${glow + 10}px rgba(220, 38, 38, 0.85))` }}
+              style={{ filter: document.documentElement.classList.contains('harmonyos-optimized') ? 'none' : `drop-shadow(0 0 ${glow + 10}px rgba(220, 38, 38, 0.85))` }}
             >
               <span>{hrs}</span>
               <span className="animate-pulse mx-1">:</span>

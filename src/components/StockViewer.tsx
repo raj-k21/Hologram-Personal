@@ -175,6 +175,9 @@ export default function StockViewer({ glow, isIdle = false }: StockViewerProps) 
       let width = (canvas.width = canvas.parentElement.clientWidth || 700);
       let height = (canvas.height = canvas.parentElement.clientHeight || 400);
 
+      const isHarmonyOS = document.documentElement.classList.contains('harmonyos-optimized');
+      const systemGlow = isHarmonyOS ? 0 : glow;
+
       ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, width, height);
 
@@ -249,7 +252,7 @@ export default function StockViewer({ glow, isIdle = false }: StockViewerProps) 
       // Drawing of historical trends
       if (chartMode === 'line') {
         // Connect line nodes beautifully with high-contrast Cyan
-        ctx.shadowBlur = glow;
+        ctx.shadowBlur = systemGlow;
         ctx.shadowColor = 'rgba(34, 211, 238, 0.7)';
         ctx.strokeStyle = '#22d3ee';
         ctx.lineWidth = 2.5;
@@ -292,7 +295,7 @@ export default function StockViewer({ glow, isIdle = false }: StockViewerProps) 
           ctx.lineWidth = 1.5;
 
           // Draw shadow glow for holographic Pepper's ghost high contrast
-          ctx.shadowBlur = Math.min(glow / 1.5, 8); // clamp canvas glow to optimize memory
+          ctx.shadowBlur = isHarmonyOS ? 0 : Math.min(systemGlow / 1.5, 8); // clamp canvas glow to optimize memory
           ctx.shadowColor = glowColor;
 
           // Draw Wick
@@ -379,7 +382,7 @@ export default function StockViewer({ glow, isIdle = false }: StockViewerProps) 
       }`}
     >
       {/* Top Search bar and Stock Quick Badges */}
-      <div className={`flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 border-b border-cyan-500/10 pb-5 z-20 transition-all duration-500 ${isIdle ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      <div className={`flex flex-row items-center justify-between gap-4 border-b border-cyan-500/10 pb-5 z-20 transition-all duration-500 ${isIdle ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         
         {/* Ticker Selector details */}
         <div className="flex items-center gap-4">
@@ -437,15 +440,15 @@ export default function StockViewer({ glow, isIdle = false }: StockViewerProps) 
       </div>
 
       {/* Main Graph Grid Core */}
-      <div className="flex-1 flex flex-col md:flex-row items-stretch gap-6 py-6 overflow-hidden">
+      <div className="flex-1 flex flex-row items-stretch gap-6 py-6 overflow-hidden">
         
         {/* Left Side Quote stats */}
-        <div className={`w-full md:w-[220px] bg-white/[0.01] border border-white/5 rounded-xl p-4 flex flex-col justify-between gap-4 backdrop-blur-md transition-all duration-500 ${isIdle ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        <div className={`w-[220px] min-w-[220px] bg-white/[0.01] border border-white/5 rounded-xl p-4 flex flex-col justify-between gap-4 backdrop-blur-md transition-all duration-500 ${isIdle ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-mono text-white/40 tracking-widest uppercase">LAST TRANSACTION PRICE</span>
             <div 
               className={`text-4xl font-mono font-black tracking-tight ${isPositive ? 'text-green-400' : 'text-red-400'}`}
-              style={{ filter: `drop-shadow(0 0 ${glow / 2}px ${isPositive ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'})` }}
+              style={{ filter: document.documentElement.classList.contains('harmonyos-optimized') ? 'none' : `drop-shadow(0 0 ${glow / 2}px ${isPositive ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'})` }}
             >
               ${activeStock?.price.toFixed(2) || '0.00'}
             </div>
