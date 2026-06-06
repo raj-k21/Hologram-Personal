@@ -154,7 +154,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative w-screen h-screen bg-black overflow-hidden select-none">
+    <div className="relative w-full h-full bg-black overflow-hidden select-none">
       
       {/* Hologram Transformer Screen Section */}
       <div 

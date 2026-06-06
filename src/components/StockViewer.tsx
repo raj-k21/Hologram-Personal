@@ -170,159 +170,172 @@ export default function StockViewer({ glow, isIdle = false }: StockViewerProps) 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let width = (canvas.width = canvas.parentElement?.clientWidth || 700);
-    let height = (canvas.height = canvas.parentElement?.clientHeight || 400);
+    const renderChart = () => {
+      if (!canvas || !canvas.parentElement) return;
+      let width = (canvas.width = canvas.parentElement.clientWidth || 700);
+      let height = (canvas.height = canvas.parentElement.clientHeight || 400);
 
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, width, height);
 
-    const history = activeStock.history;
-    if (history.length === 0) return;
+      const history = activeStock.history;
+      if (history.length === 0) return;
 
-    // View bounds configuration
-    const paddingLeft = 10;
-    const paddingRight = 65;
-    const paddingTop = 40;
-    const paddingBottom = 40;
+      // View bounds configuration
+      const paddingLeft = 10;
+      const paddingRight = 65;
+      const paddingTop = 40;
+      const paddingBottom = 40;
 
-    const chartWidth = width - paddingLeft - paddingRight;
-    const chartHeight = height - paddingTop - paddingBottom;
+      const chartWidth = width - paddingLeft - paddingRight;
+      const chartHeight = height - paddingTop - paddingBottom;
 
-    // Calculate dynamic Candle slicing based on zoom
-    const originalCandleCount = history.length;
-    const visibleCandleCount = Math.max(
-      15,
-      Math.min(originalCandleCount, Math.round(originalCandleCount / zoomLevel))
-    );
+      // Calculate dynamic Candle slicing based on zoom
+      const originalCandleCount = history.length;
+      const visibleCandleCount = Math.max(
+        15,
+        Math.min(originalCandleCount, Math.round(originalCandleCount / zoomLevel))
+      );
 
-    // Apply swipe index offsets
-    const deltaIndex = Math.round(dragOffset / (chartWidth / visibleCandleCount));
-    let startIndex = Math.max(0, originalCandleCount - visibleCandleCount - deltaIndex);
-    let endIndex = Math.min(originalCandleCount, startIndex + visibleCandleCount);
+      // Apply swipe index offsets
+      const deltaIndex = Math.round(dragOffset / (chartWidth / visibleCandleCount));
+      let startIndex = Math.max(0, originalCandleCount - visibleCandleCount - deltaIndex);
+      let endIndex = Math.min(originalCandleCount, startIndex + visibleCandleCount);
 
-    if (startIndex === 0) {
-      endIndex = Math.min(originalCandleCount, visibleCandleCount);
-    }
-    if (endIndex === originalCandleCount) {
-      startIndex = Math.max(0, originalCandleCount - visibleCandleCount);
-    }
-
-    const visibleSegment = history.slice(startIndex, endIndex);
-    if (visibleSegment.length === 0) return;
-
-    // Highest/Lowest in current focus slice to size vertical resolution
-    const highPrices = visibleSegment.map(c => c.high);
-    const lowPrices = visibleSegment.map(c => c.low);
-    const maxVal = Math.max(...highPrices) * 1.002;
-    const minVal = Math.min(...lowPrices) * 0.998;
-    const valRange = maxVal - minVal;
-
-    // Mapping vectors to screen coordinates
-    const getX = (index: number) => {
-      const step = chartWidth / (visibleSegment.length - 1);
-      return paddingLeft + index * step;
-    };
-
-    const getY = (price: number) => {
-      return paddingTop + chartHeight - ((price - minVal) / valRange) * chartHeight;
-    };
-
-    // Draw coordinate Grid Lines with glows
-    ctx.strokeStyle = 'rgba(34, 211, 238, 0.05)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 5; i++) {
-      const gridY = paddingTop + (chartHeight / 4) * i;
-      ctx.beginPath();
-      ctx.moveTo(paddingLeft, gridY);
-      ctx.lineTo(width - paddingRight, gridY);
-      ctx.stroke();
-
-      // Right axis labels
-      const gridVal = maxVal - (valRange / 4) * i;
-      ctx.fillStyle = 'rgba(34, 211, 238, 0.6)';
-      ctx.font = '9px "JetBrains Mono", monospace';
-      ctx.fillText(gridVal.toFixed(2), width - paddingRight + 5, gridY + 3);
-    }
-
-    // Drawing of historical trends
-    if (chartMode === 'line') {
-      // Connect line nodes beautifully with high-contrast Cyan
-      ctx.shadowBlur = glow;
-      ctx.shadowColor = 'rgba(34, 211, 238, 0.7)';
-      ctx.strokeStyle = '#22d3ee';
-      ctx.lineWidth = 2.5;
-
-      ctx.beginPath();
-      ctx.moveTo(getX(0), getY(visibleSegment[0].close));
-      for (let i = 1; i < visibleSegment.length; i++) {
-        ctx.lineTo(getX(i), getY(visibleSegment[i].close));
+      if (startIndex === 0) {
+        endIndex = Math.min(originalCandleCount, visibleCandleCount);
       }
-      ctx.stroke();
+      if (endIndex === originalCandleCount) {
+        startIndex = Math.max(0, originalCandleCount - visibleCandleCount);
+      }
 
-      // Create glowing neon gradient fills under the trend line
-      ctx.shadowBlur = 0; // Turn off shadows during alpha fills to save CPU
-      const fillGlow = ctx.createLinearGradient(0, paddingTop, 0, paddingTop + chartHeight);
-      fillGlow.addColorStop(0, 'rgba(34, 211, 238, 0.25)');
-      fillGlow.addColorStop(1, 'rgba(34, 211, 238, 0.0)');
-      ctx.fillStyle = fillGlow;
-      ctx.lineTo(getX(visibleSegment.length - 1), paddingTop + chartHeight);
-      ctx.lineTo(getX(0), paddingTop + chartHeight);
-      ctx.closePath();
-      ctx.fill();
-    } else {
-      // Candlestick rendering logic
-      const step = chartWidth / visibleSegment.length;
-      const candleWidth = step * 0.7;
+      const visibleSegment = history.slice(startIndex, endIndex);
+      if (visibleSegment.length === 0) return;
 
-      visibleSegment.forEach((candle, idx) => {
-        const x = paddingLeft + idx * step + step * 0.15;
-        const yOpen = getY(candle.open);
-        const yClose = getY(candle.close);
-        const yHigh = getY(candle.high);
-        const yLow = getY(candle.low);
+      // Highest/Lowest in current focus slice to size vertical resolution
+      const highPrices = visibleSegment.map(c => c.high);
+      const lowPrices = visibleSegment.map(c => c.low);
+      const maxVal = Math.max(...highPrices) * 1.002;
+      const minVal = Math.min(...lowPrices) * 0.998;
+      const valRange = maxVal - minVal;
 
-        const isGreen = candle.close >= candle.open;
-        const color = isGreen ? '#22c55e' : '#ef4444'; // Bright green or bright red
-        const glowColor = isGreen ? 'rgba(34,197,94,0.45)' : 'rgba(239,68,68,0.45)';
+      // Mapping vectors to screen coordinates
+      const getX = (index: number) => {
+        const step = chartWidth / (visibleSegment.length - 1);
+        return paddingLeft + index * step;
+      };
 
-        ctx.strokeStyle = color;
-        ctx.fillStyle = color;
-        ctx.lineWidth = 1.5;
+      const getY = (price: number) => {
+        return paddingTop + chartHeight - ((price - minVal) / valRange) * chartHeight;
+      };
 
-        // Draw shadow glow for holographic Pepper's ghost high contrast
-        ctx.shadowBlur = glow / 1.5;
-        ctx.shadowColor = glowColor;
-
-        // Draw Wick
+      // Draw coordinate Grid Lines with glows
+      ctx.strokeStyle = 'rgba(34, 211, 238, 0.05)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 5; i++) {
+        const gridY = paddingTop + (chartHeight / 4) * i;
         ctx.beginPath();
-        ctx.moveTo(x + candleWidth / 2, yHigh);
-        ctx.lineTo(x + candleWidth / 2, yLow);
+        ctx.moveTo(paddingLeft, gridY);
+        ctx.lineTo(width - paddingRight, gridY);
         ctx.stroke();
 
-        // Draw Candle Body
-        const top = Math.min(yOpen, yClose);
-        const bh = Math.max(2, Math.abs(yClose - yOpen));
-        ctx.fillRect(x, top, candleWidth, bh);
-      });
-      ctx.shadowBlur = 0; // reset
-    }
+        // Right axis labels
+        const gridVal = maxVal - (valRange / 4) * i;
+        ctx.fillStyle = 'rgba(34, 211, 238, 0.6)';
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.fillText(gridVal.toFixed(2), width - paddingRight + 5, gridY + 3);
+      }
 
-    // Render horizontal timeline stamps at bottom
-    ctx.fillStyle = 'rgba(34, 211, 238, 0.4)';
-    ctx.font = '8px "JetBrains Mono", monospace';
-    const totalVisible = visibleSegment.length;
-    const intervalTicks = Math.floor(totalVisible / 4);
+      // Drawing of historical trends
+      if (chartMode === 'line') {
+        // Connect line nodes beautifully with high-contrast Cyan
+        ctx.shadowBlur = glow;
+        ctx.shadowColor = 'rgba(34, 211, 238, 0.7)';
+        ctx.strokeStyle = '#22d3ee';
+        ctx.lineWidth = 2.5;
 
-    for (let idx = 0; idx < totalVisible; idx += intervalTicks) {
-      if (idx >= totalVisible) break;
-      const xPos = getX(idx);
-      const timeStr = new Date(visibleSegment[idx].time).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-      ctx.fillText(timeStr, xPos - 12, height - paddingBottom + 20);
-    }
+        ctx.beginPath();
+        ctx.moveTo(getX(0), getY(visibleSegment[0].close));
+        for (let i = 1; i < visibleSegment.length; i++) {
+          ctx.lineTo(getX(i), getY(visibleSegment[i].close));
+        }
+        ctx.stroke();
 
+        // Create glowing neon gradient fills under the trend line
+        ctx.shadowBlur = 0; // Turn off shadows during alpha fills to save CPU
+        const fillGlow = ctx.createLinearGradient(0, paddingTop, 0, paddingTop + chartHeight);
+        fillGlow.addColorStop(0, 'rgba(34, 211, 238, 0.25)');
+        fillGlow.addColorStop(1, 'rgba(34, 211, 238, 0.0)');
+        ctx.fillStyle = fillGlow;
+        ctx.lineTo(getX(visibleSegment.length - 1), paddingTop + chartHeight);
+        ctx.lineTo(getX(0), paddingTop + chartHeight);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        // Candlestick rendering logic
+        const step = chartWidth / visibleSegment.length;
+        const candleWidth = step * 0.7;
+
+        visibleSegment.forEach((candle, idx) => {
+          const x = paddingLeft + idx * step + step * 0.15;
+          const yOpen = getY(candle.open);
+          const yClose = getY(candle.close);
+          const yHigh = getY(candle.high);
+          const yLow = getY(candle.low);
+
+          const isGreen = candle.close >= candle.open;
+          const color = isGreen ? '#22c55e' : '#ef4444'; // Bright green or bright red
+          const glowColor = isGreen ? 'rgba(34,197,94,0.45)' : 'rgba(239,68,68,0.45)';
+
+          ctx.strokeStyle = color;
+          ctx.fillStyle = color;
+          ctx.lineWidth = 1.5;
+
+          // Draw shadow glow for holographic Pepper's ghost high contrast
+          ctx.shadowBlur = Math.min(glow / 1.5, 8); // clamp canvas glow to optimize memory
+          ctx.shadowColor = glowColor;
+
+          // Draw Wick
+          ctx.beginPath();
+          ctx.moveTo(x + candleWidth / 2, yHigh);
+          ctx.lineTo(x + candleWidth / 2, yLow);
+          ctx.stroke();
+
+          // Draw Candle Body
+          const top = Math.min(yOpen, yClose);
+          const bh = Math.max(2, Math.abs(yClose - yOpen));
+          ctx.fillRect(x, top, candleWidth, bh);
+        });
+        ctx.shadowBlur = 0; // reset
+      }
+
+      // Render horizontal timeline stamps at bottom
+      ctx.fillStyle = 'rgba(34, 211, 238, 0.4)';
+      ctx.font = '8px "JetBrains Mono", monospace';
+      const totalVisible = visibleSegment.length;
+      const intervalTicks = Math.floor(totalVisible / 4);
+
+      for (let idx = 0; idx < totalVisible; idx += intervalTicks) {
+        if (idx >= totalVisible) break;
+        const xPos = getX(idx);
+        const timeStr = new Date(visibleSegment[idx].time).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+        ctx.fillText(timeStr, xPos - 12, height - paddingBottom + 20);
+      }
+    };
+
+    renderChart();
+
+    const handleResize = () => {
+      setTimeout(renderChart, 100);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, [activeStock, chartMode, zoomLevel, dragOffset, glow]);
 
   // Gestures for dragging / Swipe action to pan chart history

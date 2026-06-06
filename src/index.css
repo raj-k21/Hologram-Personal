@@ -8,13 +8,51 @@
 
 /* Custom styles for high quality Pepper's Ghost rendering */
 
-body {
+html, body, #root {
+  width: 100%;
+  height: 100%;
   margin: 0;
   padding: 0;
   background-color: #000000;
   overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
   color: #ffffff;
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Disable magnifier and text selection on dashboard to feel like native app */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Enable hardware acceleration & prevent flickering on tablet transitions */
+.hardware-accelerated {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity;
+}
+
+/* Allow pan scroll on interactive sliders and drawer menus specifically */
+#floating-dock-pane, .overflow-y-auto, input[type="range"] {
+  touch-action: pan-y !important;
+}
+
+/* Safe Area Inset Layout Paddings */
+.safe-padding {
+  padding-top: max(1.25rem, env(safe-area-inset-top));
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+  padding-left: max(1.5rem, env(safe-area-inset-left));
+  padding-right: max(1.5rem, env(safe-area-inset-right));
+}
+
+.safe-top-bar {
+  padding-top: max(1.25rem, env(safe-area-inset-top));
+  padding-left: max(2rem, env(safe-area-inset-left));
+  padding-right: max(2rem, env(safe-area-inset-right));
 }
 
 /* Scrollbar customization for Settings Calibrator inside iPadOS browsers */

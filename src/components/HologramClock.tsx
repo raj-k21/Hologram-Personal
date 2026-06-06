@@ -60,11 +60,16 @@ export default function HologramClock({ glow, isIdle = false }: HologramClockPro
     let height = (canvas.height = canvas.parentElement?.clientHeight || window.innerHeight);
 
     const handleResize = () => {
-      if (!canvas) return;
-      width = canvas.width = canvas.parentElement?.clientWidth || window.innerWidth;
-      height = canvas.height = canvas.parentElement?.clientHeight || window.innerHeight;
+      if (!canvas || !canvas.parentElement) return;
+      // Brief delay for mobile Safari / Chrome viewport layout settle
+      setTimeout(() => {
+        width = canvas.width = canvas.parentElement?.clientWidth || window.innerWidth;
+        height = canvas.height = canvas.parentElement?.clientHeight || window.innerHeight;
+      }, 100);
     };
     window.addEventListener('resize', handleResize);
+    // Trigger once instantly
+    handleResize();
 
     // Particle nodes floating behind clock
     interface Point {
@@ -223,7 +228,7 @@ export default function HologramClock({ glow, isIdle = false }: HologramClockPro
             
             {/* The Huge LED Clock Display */}
             <div 
-              className="text-[90px] sm:text-[130px] md:text-[180px] leading-none font-mono font-black text-red-600 tracking-tighter select-none flex items-baseline justify-center"
+              className="text-[clamp(2.5rem,11.5vw,9.5rem)] sm:text-[clamp(4.5rem,14vw,11rem)] md:text-[clamp(6rem,14vw,11.5rem)] lg:text-[11.5rem] leading-none font-mono font-black text-red-600 tracking-tighter select-none flex items-baseline justify-center"
               style={{ filter: `drop-shadow(0 0 ${glow + 10}px rgba(220, 38, 38, 0.85))` }}
             >
               <span>{hrs}</span>
