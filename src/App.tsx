@@ -70,7 +70,7 @@ export default function App() {
   // HarmonyOS optimization detection and global class binding
   useEffect(() => {
     const ua = navigator.userAgent || '';
-    const isHarmony = /HarmonyOS/i.test(ua) || /Huawei/i.test(ua) || /MatePad/i.test(ua) || /HUAWEI/i.test(ua);
+    const isHarmony = /HarmonyOS/i.test(ua) || /Huawei/i.test(ua) || /MatePad/i.test(ua) || /HUAWEI/i.test(ua) || /AGS5-/i.test(ua);
     if (isHarmony) {
       document.documentElement.classList.add('harmonyos-optimized');
     }
